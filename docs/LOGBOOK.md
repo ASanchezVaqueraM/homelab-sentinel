@@ -19,3 +19,10 @@ Working log for the dissertation. Each entry follows the template:
 - **Decisions:** Accept the Jetson. Pending: rule-based only or hybrid (rules + ML).
 - **AI use:** Used Claude to map Alec's biometric metrics to IDS terms and to find candidate studies. I still need to read them myself.
 - **Next step:** Read Garalov & El-hajj, merge the logbook PR.
+
+## 2026-11-11 — Reading papers
+- **What I did:** Read 10 papers about IDS on Raspberry Pi and Jetson, and about mistakes when evaluating ML.
+- **Results:** No paper compares Suricata and ML on the same device with live attacks. Some papers have numbers that don't add up.
+- **Decisions:** Add a simple baseline besides Suricata. Check the content of each attack flow when labelling it.
+- **AI use:** Claude helped me summarise the papers. I still need to check the key numbers myself.
+- **Next step:** Download and fill in the ethics form.
