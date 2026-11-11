@@ -28,7 +28,7 @@ Working log for the dissertation. Each entry follows the template:
 - **Next step:** Download and fill in the ethics form.
 
 ## 2026-11-11 — Supervisor confirmation and Jetson loan
-- **What I did:** Read the replies from Alec Wells and Norbert Dajnowski and replied to both.
+- **What I did:** Read the replies from Alec Wells and Norbert Dajnowski and replied to both. Filled in a draft of the ethics application
 - **Results:** Alec confirmed that the baseline should be a rule-based IDS (Suricata or Snort). Norbert will borrow me a Jetson Orin Nano with a 64 GB microSD card, a display cable and a switch. I need to sign a loan agreement.
 - **Decisions:** Use Suricata (or Snort) as the main baseline, plus a simple packet-rate baseline.
 - **AI use:** Claude helped me read the emails, compare JetPack versions and draft the reply.
