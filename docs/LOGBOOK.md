@@ -41,3 +41,64 @@ Working log for the dissertation. Each entry follows the template:
 - **Decisions:** Flash JetPack 5.1.3 on the microSD to update the firmware, then JetPack 6.2.x. If it still doesn't boot, ask Norbert to flash it with SDK Manager.
 - **AI use:** Claude helped me compare USB adapters and troubleshoot the boot.
 - **Next step:** Flash JetPack 5.1.3 and try a headless boot over USB-C.
+
+## 2026-11-16 — Jetson Orin Nano: OS installation, upgrade and remote access
+
+### What I did
+- Diagnosed the earlier boot failure: the QSPI firmware was already at 36.4.3 (JetPack 6.2), so the
+  JetPack 5.1.3 "bridge" SD image could not boot (L4T 35.x kernel on 36.x firmware) and hung after
+  `L4TLauncher: Attempting Direct Boot`.
+- NVIDIA provides no SD card image for JetPack 6.2.2. Flashed the JetPack 6.2.1 image (L4T 36.4.4)
+  and upgraded to JetPack 6.2.2 (L4T 36.5) via APT (`r36.4` → `r36.5` in
+  `nvidia-l4t-apt-source.list`, `apt dist-upgrade`).
+- Completed the initial configuration (oem-config) headless over the USB-C serial console
+  (115200 baud), as no keyboard or mouse was available.
+- Applied a minimal host firewall (`ufw`: default deny incoming; SSH and DHCP allowed only on the
+  USB network interface `l4tbr0`).
+- Configured key-based SSH (ed25519 with passphrase) and disabled password and root login via
+  `/etc/ssh/sshd_config.d/10-hardening.conf`.
+
+### Results
+- `/etc/nv_tegra_release`: R36 REVISION 4.4 → **R36 REVISION 5.2** (JetPack 6.2.2).
+- Bootloader firmware (`nvbootctrl dump-slots-info`): **36.5.2**, capsule status 0, both A/B slots normal.
+- Ubuntu 22.04.5 LTS, kernel `5.15.199-tegra`; default power mode 25 W (mode 1).
+- `sshd -T` confirms `passwordauthentication no`, `permitrootlogin no`; password login attempt
+  rejected with `Permission denied (publickey)`.
+- Evidence: `evidence/jetson-setup/` (command outputs, session log, screenshots).
+
+### Problems
+1. Wrong bridge step (JetPack 5.1.3) caused a boot hang; root cause was not checking the firmware
+   version first.
+2. `ufw` and `tcpdump` are not included in the L4T image; a temporary `iptables` rule set protected
+   the device on the shared residence Wi-Fi until `ufw` could be installed.
+3. SSH over USB failed for four separate reasons, isolated with `tcpdump` on the Jetson and
+   `Get-NetAdapter`/`Find-NetRoute` on Windows:
+   - `ufw` blocked DHCP (UDP 67) on `l4tbr0`, so the host could not renew its lease;
+   - Windows bound two adapters (RNDIS and NCM) to the same bridge;
+   - an active VPN kill-switch silently dropped LAN traffic on the host;
+   - the USB adapter fell back to APIPA (169.254.x.x), so traffic to 192.168.55.1 was routed to the
+     residence network instead. Fixed with a static IP (192.168.55.100/24, no gateway).
+4. Without network access or an RTC battery, the system clock boots at a stale date, which breaks
+   APT/TLS until NTP synchronises.
+
+### Decisions
+- JetPack 6.2.x (Ubuntu 22.04) as the testbed OS; exact version recorded for reproducibility.
+- Conffile prompts during upgrade: kept `nv-oem-config-post.sh` deleted (removed by design after
+  first boot); accepted NVIDIA's version of the APT source list.
+- Least privilege on the IDS host: SSH reachable only from the USB management link, key-only.
+- **Open methodological decision:** the isolated lab has no NTP source and the board has no RTC
+  battery. A local `chrony` server is proposed so that all lab hosts share one time reference;
+  otherwise time-to-alert and pcap/alert correlation are unreliable.
+
+### AI use
+Claude (Anthropic) was used to plan the installation path, interpret command outputs and diagnose
+the network faults. Recommendations were checked against NVIDIA's JetPack 6.2.2 and Jetson Linux
+36.5 documentation and verified on the device; all results above are from real command output.
+One AI suggestion (an overly narrow `ufw` rule) caused the DHCP failure and was corrected.
+Transcript: `AI-evidence/2026-11-16_claude-jetson-setup-transcript.pdf`.
+
+### Next step
+- Disable Wi-Fi before moving the Jetson into the isolated lab (CIS Ubuntu 22.04, 3.1.2).
+- Decide and fix the power mode for performance measurements.
+- Complete and submit the ethics form to the supervisor (deadline 4 Dec).
+- Build the `br0` inline bridge once the USB Ethernet adapter arrives.
