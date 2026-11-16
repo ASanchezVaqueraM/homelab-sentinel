@@ -33,3 +33,11 @@ Working log for the dissertation. Each entry follows the template:
 - **Decisions:** Use Suricata (or Snort) as the main baseline, plus a simple packet-rate baseline.
 - **AI use:** Claude helped me read the emails, compare JetPack versions and draft the reply.
 - **Next step:** Collect the Jetson and start the ethics form (due 4 December).
+
+## 2026-11-12 — Jetson collected and first boot attempt (written on 2026-11-16)
+- **What I did:** Collected the Jetson Orin Nano and an unmanaged switch from Norbert. Asked him to order a USB 3.0 to Gigabit Ethernet adapter (TP-Link UE300), arriving next week. Tried to boot the Jetson.
+- **Results:** The switch has no port mirroring, so I will run the Jetson as an inline bridge with the USB adapter as the second port. The Jetson came without an OS. The green LED turns on, but there is no image on DP-to-DP or DP-to-HDMI, even though the monitor works with other devices. Windows shows an "Unknown USB device" when connected by USB-C.
+- **Problems:** The Jetson may be in recovery mode or have old firmware that needs updating.
+- **Decisions:** Flash JetPack 5.1.3 on the microSD to update the firmware, then JetPack 6.2.x. If it still doesn't boot, ask Norbert to flash it with SDK Manager.
+- **AI use:** Claude helped me compare USB adapters and troubleshoot the boot.
+- **Next step:** Flash JetPack 5.1.3 and try a headless boot over USB-C.
